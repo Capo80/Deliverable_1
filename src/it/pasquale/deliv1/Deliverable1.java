@@ -6,10 +6,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class Deliverable1 {
 
@@ -46,27 +50,49 @@ public class Deliverable1 {
 	       }
 	   }
 
-
+	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
+		ProcessBuilder pb = new ProcessBuilder()
+				.command(command)
+				.directory(directory.toFile());
+		Process p = pb.start();                                                                                                                                                   
+		BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String s;
+		while ((s = stdInput.readLine()) != null) {
+		        System.out.println(s);
+		}
+	}
+	
 	  
 	public static void main(String[] args) throws IOException, JSONException {
 			   
-			   String projName ="QPID";
-		   Integer j = 0, i = 0, total = 1;
-	      //Get JSON API for closed bugs w/ AV in the project
-	      do {
-	         //Only gets a max of 1000 at a time, so must do this multiple times if bugs >1000
+		//Modified projName
+		String projName ="STDCXX";
+		Integer j = 0, i = 0, total = 1;
+		//Get JSON API for closed bugs w/ AV in the project
+		do {
+			 //Only gets a max of 1000 at a time, so must do this multiple times if tickets >1000
 	         j = i + 1000;
 	         String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
-	                + projName + "%22AND%22issueType%22=%22Bug%22AND(%22status%22=%22closed%22OR"
+	                + projName + "%22AND(%22status%22=%22closed%22OR"
 	                + "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22&fields=key,resolutiondate,versions,created&startAt="
 	                + i.toString() + "&maxResults=" + j.toString();
+	         //System.out.println(url);
 	         JSONObject json = readJsonFromUrl(url);
 	         JSONArray issues = json.getJSONArray("issues");
 	         total = json.getInt("total");
 	         for (; i < total && i < j; i++) {
-	            //Iterate through each bug
+	            //Iterate through each ticket
 	            String key = issues.getJSONObject(i%1000).get("key").toString();
-	            System.out.println(key);
+	    		Path dir = Paths.get("/home/capo80/Desktop/apache_repo/stdcxx");
+	    		try {
+	    			runCommand(dir, "git", "log", "--grep="+key, "--date=iso-strict");
+	    		} catch (IOException e) {
+	    			// TODO Auto-generated catch block
+	    			e.printStackTrace();
+	    		} catch (InterruptedException e) {
+	    			// TODO Auto-generated catch block
+	    			e.printStackTrace();
+	    		}
 	         }  
 	      } while (i < total);
 	      return;
