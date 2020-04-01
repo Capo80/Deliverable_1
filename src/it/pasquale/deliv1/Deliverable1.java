@@ -10,6 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,21 +53,25 @@ public class Deliverable1 {
 	       }
 	   }
 
-	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
+	public static Vector<String> runCommand(Path directory, String... command) throws IOException, InterruptedException {
 		ProcessBuilder pb = new ProcessBuilder()
 				.command(command)
 				.directory(directory.toFile());
 		Process p = pb.start();                                                                                                                                                   
 		BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String s;
+		Vector<String> toReturn = new Vector<>();
 		while ((s = stdInput.readLine()) != null) {
-		        System.out.println(s);
+				//System.out.println(s);
+		        toReturn.add(s);
 		}
+		return toReturn;
 	}
 	
 	  
 	public static void main(String[] args) throws IOException, JSONException {
-			   
+			 
+		
 		//Modified projName
 		String projName ="STDCXX";
 		Integer j = 0, i = 0, total = 1;
@@ -74,7 +81,7 @@ public class Deliverable1 {
 	         j = i + 1000;
 	         String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
 	                + projName + "%22AND(%22status%22=%22closed%22OR"
-	                + "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22&fields=key,resolutiondate,versions,created&startAt="
+	                + "%22status%22=%22resolved%22)AND%22resolution%22=%22fixed%22&fields=key&startAt="
 	                + i.toString() + "&maxResults=" + j.toString();
 	         //System.out.println(url);
 	         JSONObject json = readJsonFromUrl(url);
@@ -84,8 +91,9 @@ public class Deliverable1 {
 	            //Iterate through each ticket
 	            String key = issues.getJSONObject(i%1000).get("key").toString();
 	    		Path dir = Paths.get("/home/capo80/Desktop/apache_repo/stdcxx");
+	    		Vector<String> output  = new Vector<>();
 	    		try {
-	    			runCommand(dir, "git", "log", "--grep="+key, "--date=iso-strict");
+	    			output = runCommand(dir, "git", "log", "--grep="+key, "--date=iso-strict");
 	    		} catch (IOException e) {
 	    			// TODO Auto-generated catch block
 	    			e.printStackTrace();
@@ -93,6 +101,19 @@ public class Deliverable1 {
 	    			// TODO Auto-generated catch block
 	    			e.printStackTrace();
 	    		}
+	    		//System.out.println(key);
+	    		Pattern date = Pattern.compile("\\d\\d\\d\\d-\\d\\d-\\d\\d");
+	    		String last_commit = "1800-00-00";
+	    		for (int s = 0; s < output.size(); s++ ) {
+	    			Matcher m = date.matcher(output.get(s));
+	    			if (m.find()) {
+	    			    if (last_commit.compareTo(m.group(0)) < 0)
+	    			    	last_commit = m.group(0);
+	    					//System.out.println(m.group(0));
+	    					// s now contains "BAR"
+	    			}
+	    		}
+	    		System.out.println(key + ", " + last_commit);
 	         }  
 	      } while (i < total);
 	      return;
