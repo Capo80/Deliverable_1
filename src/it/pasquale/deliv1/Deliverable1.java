@@ -121,9 +121,9 @@ public class Deliverable1 {
 		
 		
 	}
-	//Function that uses git to to recover all commits
+	//Function that uses git to to count all commits per month
 	//The results are saved in the commit info structured (assumed correctly initialized)
-	private static void recoverCommit(Hashtable<String, Integer> commitInfo) throws IOException, InterruptedException {
+	private static void countCommit(Hashtable<String, Integer> commitInfo) throws IOException, InterruptedException {
 		
 		Pattern comPattern = Pattern.compile("commit");
 		
@@ -152,11 +152,48 @@ public class Deliverable1 {
 		}
 		
 	}
-	
-	
-	//Function that uses git to recover all commit that match a specific ticket key
+	//Function that uses git to recover all commit with keys per month
 	//The results are saved in the commit info structured (assumed correctly initialized)
-	private static void recoverCommitKeys(Hashtable<String, Integer> commitInfo, Vector<String> keys) throws IOException, InterruptedException {
+	private static void countCommitKeysOnce(Hashtable<String, Integer> commitInfo) throws IOException, InterruptedException {
+		
+		Pattern comPattern = Pattern.compile("commit");
+		Pattern keyPattern = Pattern.compile("STDCXX");
+		
+		Path dir = Paths.get(dirPath);
+		Vector<String> output  = new Vector<>();
+		output = runCommand(dir, "git", "log", "--date=iso-strict");
+
+		//System.out.println(key);
+		String fixedCommit = "1800-00-00";
+		boolean hasKey = false;
+		for (int s = 0; s < output.size(); s++ ) {
+    		//System.out.println(output.get(s));
+			Matcher m = date.matcher(output.get(s));
+			if (m.find()) {
+			    if (fixedCommit.compareTo(m.group(0)) < 0)
+			    	fixedCommit = m.group(0).subSequence(0, 7).toString();
+					//System.out.println(m.group(0));
+					
+			}
+			m = keyPattern.matcher(output.get(s));
+			if (m.find()) {
+				hasKey = true;
+			}
+			m = comPattern.matcher(output.get(s));
+			if (m.find()) {
+				if (hasKey && fixedCommit.compareTo("1800-00-00") != 0) {
+					commitInfo.put(fixedCommit, commitInfo.get(fixedCommit)+1);
+				}
+				fixedCommit = "1800-00-00";
+				hasKey = false;
+			}
+		}
+
+	}
+	
+	//Function that uses git to count all fixed tickets per month
+	//The results are saved in the commit info structured (assumed correctly initialized)
+	private static void countCommitKeys(Hashtable<String, Integer> commitInfo, Vector<String> keys) throws IOException, InterruptedException {
 		
 		for (String key: keys) {
 			Path dir = Paths.get(dirPath);
@@ -272,7 +309,7 @@ public class Deliverable1 {
 		}*/
 		
 		try {
-			recoverCommitKeys(commitInfo, ticketKeys);
+			countCommitKeys(commitInfo, ticketKeys);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -290,7 +327,25 @@ public class Deliverable1 {
 		}
 		
 		try {
-			recoverCommit(commitInfo);
+			countCommitKeysOnce(commitInfo);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		saveToCSV(commitInfo, "/home/capo80/Desktop/commitsKeyOnce.csv");
+		
+		//reset structure for the counting
+		keys = commitInfo.keySet();
+		for(String key: keys){
+			commitInfo.put(key, 0);
+		}
+				
+		try {
+			countCommit(commitInfo);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
