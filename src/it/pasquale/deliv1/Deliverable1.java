@@ -28,8 +28,34 @@ public class Deliverable1 {
  	   //Pattern for date recognition
        final private static Pattern date = Pattern.compile("\\d\\d\\d\\d-\\d\\d-\\d\\d");
 
-	   final private static String dirPath ="/home/capo80/Desktop/apache_repo/stdcxx";
+	   private static String dirPath ="/home/capo80/Desktop/apache_repo";
 	   	
+	   private static String importRepository(String repoURL, String directory) throws IllegalArgumentException {
+		   
+		   String repoName;
+		   try {
+			   //Url must me in format https://../.../RepoName.git
+			   String[] splitted = repoURL.split("/");
+			   String repoGitName = splitted[splitted.length-1];
+			   repoName = repoGitName.substring(0, repoGitName.length()-4);
+		   } catch (Exception e) {
+			   e.printStackTrace();
+			   throw new IllegalArgumentException("Not a valid url");
+		   }
+		   
+		   //The command will simply fail if the repository is already there
+		   try {
+				runCommand(Paths.get(directory), "git",  "clone", repoURL);
+		   } catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+		   } catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+		   }	
+		   
+		   return repoName;
+	   }
 	   //Adds one month to a date (Assumes date is correcly formatted yyyy-mm)
 	   private static String addOne(String date) {
 		   
@@ -221,7 +247,11 @@ public class Deliverable1 {
 	
 	  
 	public static void main(String[] args) throws IOException, JSONException {
-			 
+		
+		String repoName = importRepository("https://github.com/apache/stdcxx.git", dirPath);
+		
+		dirPath += "/" + repoName;
+		
 		//Recover first commit
 		Vector<String> firstCommit = new Vector<>();
 		try {
