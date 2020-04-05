@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -28,7 +29,7 @@ public class Deliverable1 {
  	   //Pattern for date recognition
        private static final Pattern date = Pattern.compile("\\d\\d\\d\\d-\\d\\d-\\d\\d");
   	
-	   private static String importRepository(String repoURL, String directory) throws InterruptedException {
+	   private static String importRepository(String repoURL, String directory) {
 		   
 		   String repoName;
 		   //Url must me in format https://../.../RepoName.git
@@ -94,14 +95,14 @@ public class Deliverable1 {
 	       }
 	   }
 
-	public static ArrayList<String> runCommand(Path directory, String... command) throws IOException {
+	public static List<String> runCommand(Path directory, String... command) throws IOException {
 		ProcessBuilder pb = new ProcessBuilder()
 				.command(command)
 				.directory(directory.toFile());
 		Process p = pb.start();                                                                                                                                                   
 		BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String s;
-		ArrayList<String> toReturn = new ArrayList<String>();
+		ArrayList<String> toReturn = new ArrayList<>();
 		while ((s = stdInput.readLine()) != null) {
 		        toReturn.add(s);
 		}
@@ -128,12 +129,12 @@ public class Deliverable1 {
 	}
 	//Function that uses git to to count all commits per month
 	//The results are saved in the commit info structured (assumed correctly initialized)
-	private static void countCommit(HashMap<String, Integer> commitInfo, String dirPath) throws IOException, InterruptedException {
+	private static void countCommit(HashMap<String, Integer> commitInfo, String dirPath) throws IOException {
 
 		Pattern comPattern = Pattern.compile("commit");
 		
 		Path dir = Paths.get(dirPath);
-		ArrayList<String> output  = new ArrayList<String>();
+		List<String> output  = new ArrayList<>();
 		output = runCommand(dir, "git", "log", DATE_ISO_STRICT);
 
 		String fixedCommit = MIN_DATE;
@@ -153,13 +154,13 @@ public class Deliverable1 {
 	}
 	//Function that uses git to recover all commit with keys per month
 	//The results are saved in the commit info structured (assumed correctly initialized)
-	private static void countCommitKeysOnce(HashMap<String, Integer> commitInfo, String dirPath) throws IOException, InterruptedException {
+	private static void countCommitKeysOnce(HashMap<String, Integer> commitInfo, String dirPath) throws IOException {
 		
 		Pattern comPattern = Pattern.compile("commit");
 		Pattern keyPattern = Pattern.compile("STDCXX");
 		
 		Path dir = Paths.get(dirPath);
-		ArrayList<String> output  = new ArrayList<String>();
+		List<String> output  = new ArrayList<>();
 		output = runCommand(dir, "git", "log", DATE_ISO_STRICT);
 
 		String fixedCommit = MIN_DATE;
@@ -188,11 +189,11 @@ public class Deliverable1 {
 	
 	//Function that uses git to count all fixed tickets per month
 	//The results are saved in the commit info structured (assumed correctly initialized)
-	private static void countCommitKeys(HashMap<String, Integer> commitInfo, Vector<String> keys, String dirPath) throws IOException, InterruptedException {
+	private static void countCommitKeys(HashMap<String, Integer> commitInfo, Vector<String> keys, String dirPath) throws IOException {
 		
 		for (String key: keys) {
 			Path dir = Paths.get(dirPath);
-			ArrayList<String> output  = new ArrayList<String>();
+			List<String> output  = new ArrayList<>();
 			output = runCommand(dir, "git", "log", "--grep="+key, DATE_ISO_STRICT);
 
 			String fixedCommit = MIN_DATE;
@@ -211,14 +212,14 @@ public class Deliverable1 {
 	  
 	public static void main(String[] args) throws IOException, JSONException, InterruptedException {
 		
-		String dirPath = "/home/capo80/Desktop/apache_repo";
+		String dirPath = "..";
 		
 		String repoName = importRepository("https://github.com/apache/stdcxx.git", dirPath);
 		
 		dirPath += "/" + repoName;
 		
 		//Recover first commit
-		ArrayList<String> firstCommit = new ArrayList<String>();
+		List<String> firstCommit = new ArrayList<>();
 		try {
 			firstCommit = runCommand(Paths.get(dirPath), "git",  "log","--max-parents=0", "HEAD", DATE_ISO_STRICT);
 		} catch (IOException e1) {
@@ -235,7 +236,7 @@ public class Deliverable1 {
 		}
 		
 		//Recover last commit
-		ArrayList<String> lastCommit = new ArrayList<String>();
+		List<String> lastCommit = new ArrayList<>();
 		try {
 			lastCommit = runCommand(Paths.get(dirPath), "git",  "log","-1", DATE_ISO_STRICT);
 		} catch (IOException e1) {
@@ -252,7 +253,7 @@ public class Deliverable1 {
 		}
 			
 		//Initialize structure for the counting
-		HashMap<String, Integer> commitInfo = new HashMap<String, Integer>();
+		HashMap<String, Integer> commitInfo = new HashMap<>();
 		while (firstCommitDate.compareTo(lastCommitDate) <= 0) {
 			commitInfo.put(firstCommitDate, 0);
 			firstCommitDate = addOne(firstCommitDate);
@@ -285,7 +286,7 @@ public class Deliverable1 {
 			e.printStackTrace();
 		}
 		
-		saveToCSV(commitInfo, "/home/capo80/Desktop/commitsKeys.csv");
+		saveToCSV(commitInfo, "commitsKeys.csv");
 		
 		//reset structure for the counting
 		Set<String> keys = commitInfo.keySet();
@@ -299,7 +300,7 @@ public class Deliverable1 {
 			e.printStackTrace();
 		}
 		
-		saveToCSV(commitInfo, "/home/capo80/Desktop/commitsKeyOnce.csv");
+		saveToCSV(commitInfo, "commitsKeyOnce.csv");
 		
 		//reset structure for the counting
 		keys = commitInfo.keySet();
@@ -313,8 +314,7 @@ public class Deliverable1 {
 			e.printStackTrace();
 		}
 		
-		saveToCSV(commitInfo, "/home/capo80/Desktop/commits.csv");
-		return;
+		saveToCSV(commitInfo, "commits.csv");
 	   }
 
 	 
