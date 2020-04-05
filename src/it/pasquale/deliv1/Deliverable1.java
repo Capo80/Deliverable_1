@@ -134,8 +134,7 @@ public class Deliverable1 {
 		Pattern comPattern = Pattern.compile("commit");
 		
 		Path dir = Paths.get(dirPath);
-		List<String> output  = new ArrayList<>();
-		output = runCommand(dir, "git", "log", DATE_ISO_STRICT);
+		List<String> output = runCommand(dir, "git", "log", DATE_ISO_STRICT);
 
 		String fixedCommit = MIN_DATE;
 		for (int s = 0; s < output.size(); s++ ) {
@@ -160,8 +159,7 @@ public class Deliverable1 {
 		Pattern keyPattern = Pattern.compile("STDCXX");
 		
 		Path dir = Paths.get(dirPath);
-		List<String> output  = new ArrayList<>();
-		output = runCommand(dir, "git", "log", DATE_ISO_STRICT);
+		List<String> output = runCommand(dir, "git", "log", DATE_ISO_STRICT);
 
 		String fixedCommit = MIN_DATE;
 		boolean hasKey = false;
@@ -189,12 +187,11 @@ public class Deliverable1 {
 	
 	//Function that uses git to count all fixed tickets per month
 	//The results are saved in the commit info structured (assumed correctly initialized)
-	private static void countCommitKeys(HashMap<String, Integer> commitInfo, Vector<String> keys, String dirPath) throws IOException {
+	private static void countCommitKeys(HashMap<String, Integer> commitInfo, ArrayList<String> keys, String dirPath) throws IOException {
 		
 		for (String key: keys) {
 			Path dir = Paths.get(dirPath);
-			List<String> output  = new ArrayList<>();
-			output = runCommand(dir, "git", "log", "--grep="+key, DATE_ISO_STRICT);
+			List<String> output = runCommand(dir, "git", "log", "--grep="+key, DATE_ISO_STRICT);
 
 			String fixedCommit = MIN_DATE;
 			for (int s = 0; s < output.size(); s++ ) {
@@ -262,7 +259,7 @@ public class Deliverable1 {
 		//Modified projName
 		String projName ="STDCXX";
 		Integer j = 0, i = 0, total = 1;
-		Vector<String> ticketKeys = new Vector<String>();
+		ArrayList<String> ticketKeys = new ArrayList<>();
 		//Get JSON API for closed bugs w/ AV in the project
 		do {
 			//Only gets a max of 1000 at a time, so must do this multiple times if tickets >1000
