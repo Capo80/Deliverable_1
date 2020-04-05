@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.JSONException;
@@ -216,12 +215,8 @@ public class Deliverable1 {
 		dirPath += "/" + repoName;
 		
 		//Recover first commit
-		List<String> firstCommit = new ArrayList<>();
-		try {
-			firstCommit = runCommand(Paths.get(dirPath), "git",  "log","--max-parents=0", "HEAD", DATE_ISO_STRICT);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		List<String> firstCommit = runCommand(Paths.get(dirPath), "git",  "log","--max-parents=0", "HEAD", DATE_ISO_STRICT);
+
 		
 		//Recover date of first commit (cut the days)
 		String firstCommitDate = "";
@@ -233,12 +228,8 @@ public class Deliverable1 {
 		}
 		
 		//Recover last commit
-		List<String> lastCommit = new ArrayList<>();
-		try {
-			lastCommit = runCommand(Paths.get(dirPath), "git",  "log","-1", DATE_ISO_STRICT);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		List<String> lastCommit = runCommand(Paths.get(dirPath), "git",  "log","-1", DATE_ISO_STRICT);
+
 		
 		//Recover date of last commit (cut the days)
 		String lastCommitDate = "";
@@ -258,7 +249,9 @@ public class Deliverable1 {
 		
 		//Modified projName
 		String projName ="STDCXX";
-		Integer j = 0, i = 0, total = 1;
+		Integer j = 0;
+		Integer i = 0; 
+		Integer total = 1;
 		ArrayList<String> ticketKeys = new ArrayList<>();
 		//Get JSON API for closed bugs w/ AV in the project
 		do {
@@ -277,11 +270,7 @@ public class Deliverable1 {
 	         }  
 		} while (i < total);
 	
-		try {
-			countCommitKeys(commitInfo, ticketKeys, dirPath);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		countCommitKeys(commitInfo, ticketKeys, dirPath);
 		
 		saveToCSV(commitInfo, "commitsKeys.csv");
 		
@@ -291,11 +280,7 @@ public class Deliverable1 {
 			commitInfo.put(key, 0);
 		}
 		
-		try {
-			countCommitKeysOnce(commitInfo, dirPath);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		countCommitKeysOnce(commitInfo, dirPath);
 		
 		saveToCSV(commitInfo, "commitsKeyOnce.csv");
 		
@@ -304,16 +289,10 @@ public class Deliverable1 {
 		for(String key: keys){
 			commitInfo.put(key, 0);
 		}
-				
-		try {
-			countCommit(commitInfo, dirPath);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
-		saveToCSV(commitInfo, "commits.csv");
-	   }
+		countCommit(commitInfo, dirPath);
 
-	 
+		saveToCSV(commitInfo, "commits.csv");
+	   }	 
 
 }
