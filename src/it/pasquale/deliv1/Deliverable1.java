@@ -133,17 +133,15 @@ public class Deliverable1 {
 		if (!newCSV.exists())
 			newCSV.createNewFile();
 		
-		FileWriter fw = new FileWriter(newCSV);
-		
-		fw.write("Date,Commits\n");
-		
-		Set<String> keys = commitInfo.keySet();
-		for(String key: keys){
-			fw.write(key + "," + String.valueOf(commitInfo.get(key)) + "\n");
+		try (FileWriter fw = new FileWriter(newCSV)) {
+			
+			fw.write("Date,Commits\n");
+			
+			Set<String> keys = commitInfo.keySet();
+			for(String key: keys){
+				fw.write(key + "," + String.valueOf(commitInfo.get(key)) + "\n");
+			}
 		}
-		
-		fw.flush();
-		fw.close();
 		
 		
 	}
@@ -246,7 +244,7 @@ public class Deliverable1 {
 	}
 	
 	  
-	public static void main(String[] args) throws IOException, JSONException {
+	public static void main(String[] args) throws IOException, JSONException, InterruptedException {
 		
 		String repoName = importRepository("https://github.com/apache/stdcxx.git", dirPath);
 		
@@ -257,9 +255,6 @@ public class Deliverable1 {
 		try {
 			firstCommit = runCommand(Paths.get(dirPath), "git",  "log","--max-parents=0", "HEAD", "--date=iso-strict");
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -281,9 +276,6 @@ public class Deliverable1 {
 		try {
 			lastCommit = runCommand(Paths.get(dirPath), "git",  "log","-1", "--date=iso-strict");
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -343,9 +335,6 @@ public class Deliverable1 {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		saveToCSV(commitInfo, "/home/capo80/Desktop/commitsKeys.csv");
@@ -361,9 +350,6 @@ public class Deliverable1 {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		saveToCSV(commitInfo, "/home/capo80/Desktop/commitsKeyOnce.csv");
@@ -377,9 +363,6 @@ public class Deliverable1 {
 		try {
 			countCommit(commitInfo);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
