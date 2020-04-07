@@ -190,7 +190,7 @@ public class Deliverable1 {
 		
 		for (String key: keys) {
 			Path dir = Paths.get(dirPath);
-			List<String> output = runCommand(dir, "git", "log", "--grep="+key, DATE_ISO_STRICT);
+			List<String> output = runCommand(dir, "git", "log", "--grep="+key+"$", DATE_ISO_STRICT);
 
 			String fixedCommit = MIN_DATE;
 			for (int s = 0; s < output.size(); s++ ) {
@@ -269,7 +269,7 @@ public class Deliverable1 {
 	            
 	         }  
 		} while (i < total);
-	
+			
 		countCommitKeys(commitInfo, ticketKeys, dirPath);
 		
 		saveToCSV(commitInfo, "commitsKeys.csv");
