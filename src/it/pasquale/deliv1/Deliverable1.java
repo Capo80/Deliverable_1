@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.JSONException;
@@ -41,7 +43,7 @@ public class Deliverable1 {
 		   try {
 				runCommand(Paths.get(directory), "git",  "clone", repoURL);
 		   } catch (IOException e1) {
-				e1.printStackTrace();
+				//do nothing
 		   } 
 		   
 		   return repoName;
@@ -111,9 +113,11 @@ public class Deliverable1 {
 	private static void saveToCSV(HashMap<String, Integer> commitInfo, String fileName) throws IOException {
 		
 		File newCSV = new File(fileName);
-		if (!newCSV.exists())
-			newCSV.createNewFile();
-		
+		if (!newCSV.exists() && !newCSV.createNewFile()) {
+			//Log error
+			Logger logger = Logger.getLogger("Dev1");
+			logger.log(Level.SEVERE, "Cannot save info");
+		}
 		try (FileWriter fw = new FileWriter(newCSV)) {
 			
 			fw.write("Date,Commits\n");
